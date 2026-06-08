@@ -1,27 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="600.0" prefWidth="500.0" style="-fx-background-color: #0B111E; -fx-spacing: 10;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatroom.ChatController">
-    <padding>
-        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-    </padding>
-    <children>
-        <TextArea fx:id="chatArea" editable="false" prefHeight="500.0" wrapText="true"
-                  style="-fx-control-inner-background: #1E293B; -fx-text-fill: #F1F5F9; -fx-border-color: #334155;" VBox.vgrow="ALWAYS" />
+<SplitPane fx:id="roomArea" dividerPositions="0.25" prefHeight="600.0" prefWidth="800.0"
+           style="-fx-background-color: #0B111E; -fx-box-border: transparent; -fx-padding: 0;"
+           xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.chatroom.ChatController">
+
+    <VBox minWidth="180.0" maxWidth="400.0" prefWidth="220.0" style="-fx-background-color: #0F172A; -fx-border-color: #1E293B; -fx-border-width: 0 1 0 0; -fx-spacing: 10;">
+        <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+        </padding>
+
+        <Label style="-fx-text-fill: #F1F5F9; -fx-font-weight: bold;" text="Chatroom" />
+
+        <ListView fx:id="roomListView" style="-fx-background-color: #1E293B; -fx-control-inner-background: #1E293B; -fx-text-fill: #F1F5F9; -fx-background-radius: 5px;" VBox.vgrow="ALWAYS" />
+
+        <Separator opacity="0.1" />
+
+        <TextField fx:id="newRoomField" onAction="#onCreateRoomClick" promptText="New room name..." style="-fx-background-color: #1E293B; -fx-text-fill: #FFFFFF; -fx-prompt-text-fill: #475569; -fx-border-color: #334155; -fx-background-radius: 5px; -fx-border-radius: 5px; -fx-padding: 8px;" />
+
+        <Button maxWidth="Infinity" onAction="#onCreateRoomClick" style="-fx-background-color: #38BDF8; -fx-text-fill: #0B111E; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-padding: 8px;" text="+ Create Room" />
+    </VBox>
+
+    <VBox style="-fx-spacing: 10;">
+        <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+        </padding>
+
+        <Label fx:id="currentRoomLabel" style="-fx-text-fill: #38BDF8; -fx-font-weight: bold;" text="Select or create a room to start chatting" />
+
+        <TextArea fx:id="chatArea" editable="false" style="-fx-control-inner-background: #1E293B; -fx-text-fill: #F1F5F9; -fx-border-color: #334155; -fx-background-radius: 5px;" wrapText="true" VBox.vgrow="ALWAYS" />
 
         <HBox style="-fx-spacing: 10;">
-            <children>
-                <TextField fx:id="inputField" prefHeight="40.0" promptText="Type a message..." HBox.hgrow="ALWAYS"
-                           style="-fx-background-color: #1E293B; -fx-text-fill: #FFFFFF; -fx-prompt-text-fill: #475569; -fx-border-color: #334155;"/>
-                <Button defaultButton="true" onAction="#onSendButtonClick" prefHeight="40.0" prefWidth="80.0" text="Send"
-                        style="-fx-background-color: #38BDF8; -fx-text-fill: #0B111E; -fx-font-weight: bold;"/>
-            </children>
+            <TextField fx:id="inputField" promptText="Type a message..." style="-fx-background-color: #1E293B; -fx-text-fill: #FFFFFF; -fx-prompt-text-fill: #475569; -fx-border-color: #334155; -fx-background-radius: 5px; -fx-border-radius: 5px; -fx-padding: 10px;" HBox.hgrow="ALWAYS" />
+
+            <Button defaultButton="true" onAction="#onSendButtonClick" style="-fx-background-color: #38BDF8; -fx-text-fill: #0B111E; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-padding: 10px 20px;" text="Send" />
         </HBox>
-    </children>
-</VBox>
+
+    </VBox>
+</SplitPane>

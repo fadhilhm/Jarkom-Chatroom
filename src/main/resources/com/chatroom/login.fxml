@@ -1,27 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane style="-fx-background-color: #0B111E;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatroom.Controller">
+<AnchorPane prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: #0B111E;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatroom.LoginController">
    <children>
-      <VBox alignment="CENTER" style="-fx-spacing: 20;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox alignment="CENTER" spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label graphicTextGap="10.0" style="-fx-text-fill: #F1F5F9;" text="Welcome!">
+
+            <Label graphicTextGap="10.0" style="-fx-text-fill: #38BDF8;" text="Welcome!">
                <font>
-                  <Font name="System Bold" size="12.0" />
-               </font></Label>
-            <Label style="-fx-text-fill: #F1F5F9;" text="Login">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font></Label>
-            <TextField fx:id="usernameField" maxWidth="200.0" prefWidth="150.0" promptText="Enter you username" style="-fx-background-color: #1E293B;                               -fx-text-fill: #FFFFFF;                               -fx-prompt-text-fill: #475569;                               -fx-border-color: #38BDF8;                               -fx-border-radius: 5px;                               -fx-background-radius: 5px;" />
-            <Button mnemonicParsing="false" onAction="#onJoinPressed" style="-fx-background-color: #1E293B; -fx-border-color: #38BDF8; -fx-border-radius: 10;" text="Join Chat" textFill="WHITE">
-               <font>
-                  <Font size="13.0" />
+                  <Font name="System Bold" size="28.0" />
                </font>
+            </Label>
+
+            <Label style="-fx-text-fill: #F1F5F9;" text="Login to Chatroom">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
+            </Label>
+
+            <TextField fx:id="usernameField" maxWidth="240.0" promptText="Enter your username"
+                       style="-fx-background-color: #1E293B;
+                              -fx-text-fill: #FFFFFF;
+                              -fx-prompt-text-fill: #475569;
+                              -fx-border-color: #38BDF8;
+                              -fx-border-radius: 5px;
+                              -fx-background-radius: 5px;
+                              -fx-padding: 10px;
+                              -fx-font-size: 14px;" />
+
+            <Button mnemonicParsing="false" onAction="#onJoinPressed"
+                    style="-fx-background-color: #38BDF8;
+                           -fx-text-fill: #0B111E;
+                           -fx-background-radius: 5px;
+                           -fx-border-radius: 5px;
+                           -fx-font-weight: bold;
+                           -fx-padding: 10px 30px;" text="Join Chat">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
             </Button>
+
          </children>
       </VBox>
    </children>
