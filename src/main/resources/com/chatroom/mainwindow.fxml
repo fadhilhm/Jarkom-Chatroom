@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="600.0" prefWidth="500.0" style="-fx-background-color: #0B111E; -fx-spacing: 10;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatroom.ChatController">
+    <padding>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+    </padding>
+    <children>
+        <TextArea fx:id="chatArea" editable="false" prefHeight="500.0" wrapText="true"
+                  style="-fx-control-inner-background: #1E293B; -fx-text-fill: #F1F5F9; -fx-border-color: #334155;" VBox.vgrow="ALWAYS" />
+
+        <HBox style="-fx-spacing: 10;">
+            <children>
+                <TextField fx:id="inputField" prefHeight="40.0" promptText="Type a message..." HBox.hgrow="ALWAYS"
+                           style="-fx-background-color: #1E293B; -fx-text-fill: #FFFFFF; -fx-prompt-text-fill: #475569; -fx-border-color: #334155;"/>
+                <Button defaultButton="true" onAction="#onSendButtonClick" prefHeight="40.0" prefWidth="80.0" text="Send"
+                        style="-fx-background-color: #38BDF8; -fx-text-fill: #0B111E; -fx-font-weight: bold;"/>
+            </children>
+        </HBox>
+    </children>
+</VBox>
