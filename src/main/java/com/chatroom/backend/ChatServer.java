@@ -145,20 +145,20 @@ class ClientHandler implements Runnable {
 
                         // Alert old room that user left
                         if (oldRoom != null) {
-                            String leaveAlert = clientName + " has left the room.\n";
+                            String leaveAlert = clientName + " has left the room.";
                             ChatServer.broadcastToRoom(oldRoom, leaveAlert);
                         }
 
-                        // Alert new room that user joined
-                        String joinAlert = clientName + " has joined the room.\n";;
-                        ChatServer.broadcastToRoom(roomName, joinAlert);
-
                         ChatServer.sendRoomHistory(roomName, this);
+
+                        // Alert new room that user joined
+                        String joinAlert = clientName + " has joined the room.";
+                        ChatServer.broadcastToRoom(roomName, joinAlert);
                     }
                 }
                 else {
                     if (currentRoom != null) {
-                        String message = clientName + ": " + inputLine + "\n";
+                        String message = clientName + ": " + inputLine;
                         ChatServer.archiveMessage(currentRoom, message);
                         ChatServer.broadcastToRoom(currentRoom, clientName + ": " + inputLine);
                     }
@@ -168,7 +168,7 @@ class ClientHandler implements Runnable {
             throw new RuntimeException(e);
         } finally {
             if (currentRoom != null) {
-                String departureAlert = clientName + " has left the chat.\n";
+                String departureAlert = clientName + " has left the chat.";
                 ChatServer.broadcastToRoom(currentRoom, departureAlert);
             }
 
@@ -178,7 +178,7 @@ class ClientHandler implements Runnable {
     }
 
     public void sendMessage(String message) {
-        out.println(message+"\n");
+        out.println(message);
     }
 
     public String getClientName() {
