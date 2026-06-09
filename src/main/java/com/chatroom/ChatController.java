@@ -16,6 +16,7 @@ public class ChatController {
     @FXML private TextArea chatArea;
     @FXML private TextField inputField;
 
+    @FXML private ListView<String> userListView;
     @FXML private ListView<String> roomListView;
     @FXML private TextField newRoomField;
     @FXML private Label currentRoomLabel;
@@ -144,7 +145,28 @@ public class ChatController {
             String roomName = message.substring(13);
             currentRoomLabel.setText("Currently in Room: @" + roomName);
             chatArea.clear();
-        } else {
+            userListView.getItems().clear();
+        } else if (message.startsWith("ROOM_USERS:")) {
+            userListView.getItems().clear();
+
+            String rawUsers = message.substring(11);
+            if (!rawUsers.trim().isEmpty()) {
+                String[] users = rawUsers.split(",");
+                userListView.getItems().addAll(users);
+            }
+        } else if (message.equals("EJECTED")) {
+            // You are kicked
+            chatArea.clear();
+            userListView.getItems().clear();
+            currentRoomLabel.setText("[System Alert: Ejected. Rejoining lobby...]");
+            chatArea.appendText("You were kicked or the room was deleted by its owner.\n");
+
+            // Auto fallback to General safety room safely
+            if (out != null) {
+                out.println("JOIN_ROOM:General");
+            }
+        }
+        else {
             // message
             chatArea.appendText(message + "\n");
         }
@@ -166,6 +188,26 @@ public class ChatController {
         if (!text.isEmpty() && out != null) {
             out.println(text);
             inputField.clear();
+        }
+    }
+
+    @FXML
+    public void onCloseRoomAction() {
+        // Splits off the plain room name string from the current label context
+        String cleanLabel = currentRoomLabel.getText().replace("Currently in Room: @", "").trim();
+        if (out != null && !cleanLabel.isEmpty()) {
+            out.println("CLOSE_ROOM:" + cleanLabel);
+        }
+    }
+
+    @FXML
+    public void onKickUserAction() {
+        String selectedUser = userListView.getSelectionModel().getSelectedItem();
+        if (out != null && selectedUser != null) {
+            // Ensures you don't send a payload to kick yourself
+            if (!selectedUser.equalsIgnoreCase(this.username)) {
+                out.println("KICK:" + selectedUser);
+            }
         }
     }
 }

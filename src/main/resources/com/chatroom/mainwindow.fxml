@@ -4,12 +4,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<SplitPane fx:id="roomArea" dividerPositions="0.25" prefHeight="600.0" prefWidth="800.0"
-           style="-fx-background-color: #0B111E; -fx-box-border: transparent; -fx-padding: 0;"
-           xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.chatroom.ChatController">
+<SplitPane fx:id="roomArea" dividerPositions="0.25" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #0B111E; -fx-box-border: transparent; -fx-padding: 0;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatroom.ChatController">
 
-    <VBox minWidth="180.0" maxWidth="400.0" prefWidth="220.0" style="-fx-background-color: #0F172A; -fx-border-color: #1E293B; -fx-border-width: 0 1 0 0; -fx-spacing: 10;">
+    <VBox maxWidth="400.0" minWidth="180.0" prefWidth="220.0" style="-fx-background-color: #0F172A; -fx-border-color: #1E293B; -fx-border-width: 0 1 0 0; -fx-spacing: 10;">
         <padding>
             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
         </padding>
@@ -17,6 +14,10 @@
         <Label style="-fx-text-fill: #F1F5F9; -fx-font-weight: bold;" text="Chatroom" />
 
         <ListView fx:id="roomListView" style="-fx-background-color: #1E293B; -fx-control-inner-background: #1E293B; -fx-text-fill: #F1F5F9; -fx-background-radius: 5px;" VBox.vgrow="ALWAYS" />
+      <Button layoutX="25.0" layoutY="459.0" maxWidth="Infinity" onAction="#onCloseRoomAction" style="-fx-background-color: #38BDF8; -fx-text-fill: #0B111E; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-padding: 8px;" text="Close" />
+      <Label layoutX="25.0" layoutY="25.0" style="-fx-text-fill: #F1F5F9; -fx-font-weight: bold;" text="Users" />
+      <ListView fx:id="userListView" layoutX="25.0" layoutY="53.0" style="-fx-background-color: #1E293B; -fx-control-inner-background: #1E293B; -fx-text-fill: #F1F5F9; -fx-background-radius: 5px;" />
+      <Button layoutX="25.0" layoutY="561.0" maxWidth="Infinity" onAction="#onKickUserAction" style="-fx-background-color: #38BDF8; -fx-text-fill: #0B111E; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-padding: 8px;" text="Kick" />
 
         <Separator opacity="0.1" />
 

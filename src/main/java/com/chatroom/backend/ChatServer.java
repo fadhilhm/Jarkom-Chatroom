@@ -11,11 +11,12 @@ public class ChatServer {
     private static final Set<ClientHandler> globalClients = Collections.synchronizedSet(new HashSet<>());
     private static final Map<String, Set<ClientHandler>> chatRooms = new ConcurrentHashMap<>();
     private static final Map<String, List<String>> roomsHistory = new ConcurrentHashMap<>();
+    private static final Map<String, ClientHandler> roomOwners = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         System.out.println("Connecting to Server...");
 
-        createRoom("General");
+        createRoom("General", null);
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Connected to Server! Listening on Port: " + PORT);
@@ -41,6 +42,22 @@ public class ChatServer {
                 for (ClientHandler client : roomClients) {
                     client.sendMessage(message);
                 }
+            }
+        }
+    }
+
+    public static void broadcastUserList(String roomName) {
+        Set<ClientHandler> roomClients = chatRooms.get(roomName);
+        if (roomClients != null) {
+            List<String> activeUsers = new ArrayList<>();
+            synchronized (roomClients) {
+                for (ClientHandler client : roomClients) {
+                    activeUsers.add(client.getClientName());
+                }
+            }
+            String message = "ROOM_USERS:" + String.join(",", activeUsers);
+            for (ClientHandler client : roomClients) {
+                client.sendMessage(message);
             }
         }
     }
@@ -73,9 +90,55 @@ public class ChatServer {
         }
     }
 
-    public static void createRoom(String roomName) {
+    public static void createRoom(String roomName, ClientHandler owner) {
         chatRooms.putIfAbsent(roomName, Collections.synchronizedSet(new HashSet<>()));
         roomsHistory.putIfAbsent(roomName, Collections.synchronizedList(new ArrayList<>()));
+        if (owner != null) {
+            roomOwners.putIfAbsent(roomName, owner);
+        }
+    }
+
+    public static void kickUserFromRoom(String roomName, String targetUsername) {
+        Set<ClientHandler> roomClients = chatRooms.get(roomName);
+        if (roomClients != null) {
+            ClientHandler targetHandler = null;
+            synchronized (roomClients) {
+                for (ClientHandler client : roomClients) {
+                    if (client.getClientName().equalsIgnoreCase(targetUsername)) {
+                        targetHandler = client;
+                        break;
+                    }
+                }
+            }
+            if (targetHandler != null) {
+                roomClients.remove(targetHandler);
+                targetHandler.setCurrentRoom(null);
+                targetHandler.sendMessage("EJECTED"); // Alert client to drop UI states
+
+                broadcastToRoom(roomName, "[SYSTEM] " + targetUsername + " was kicked from the room.");
+                broadcastUserList(roomName);
+            }
+        }
+    }
+
+    public static void closeRoom(String roomName) {
+        Set<ClientHandler> roomClients = chatRooms.remove(roomName);
+        roomOwners.remove(roomName);
+        roomsHistory.remove(roomName);
+
+        if (roomClients != null) {
+            synchronized (roomClients) {
+                for (ClientHandler client : roomClients) {
+                    client.setCurrentRoom(null);
+                    client.sendMessage("EJECTED");
+                }
+            }
+        }
+        broadcastRoomList();
+    }
+
+    public static ClientHandler getRoomOwner(String roomName) {
+        return roomOwners.get(roomName);
     }
 
     static boolean joinRoom(String roomName, ClientHandler client) {
@@ -133,8 +196,9 @@ class ClientHandler implements Runnable {
                 } else if (inputLine.startsWith("CREATE_ROOM:")) {
                     String roomName = inputLine.substring(12);
 
-                    ChatServer.createRoom(roomName);
+                    ChatServer.createRoom(roomName, this);
                     ChatServer.broadcastRoomList();
+
                 } else if (inputLine.startsWith("JOIN_ROOM:")) {
                     String roomName = inputLine.substring(10);
                     String oldRoom = this.currentRoom;
@@ -156,6 +220,15 @@ class ClientHandler implements Runnable {
                         String joinAlert = clientName + " has joined the room.";
                         ChatServer.archiveMessage(roomName, joinAlert);
                         ChatServer.broadcastToRoom(roomName, joinAlert);
+                    }
+                } else if (inputLine.startsWith("KICK:")) {
+                    if (currentRoom != null && this == ChatServer.getRoomOwner(currentRoom)) {
+                        ChatServer.kickUserFromRoom(currentRoom, inputLine.substring(5).trim());
+                    }
+                } else if (inputLine.startsWith("CLOSE_ROOM:")) {
+                    String targetRoom = inputLine.substring(11).trim();
+                    if (this == ChatServer.getRoomOwner(targetRoom)) {
+                        ChatServer.closeRoom(targetRoom);
                     }
                 }
                 else {
@@ -182,12 +255,11 @@ class ClientHandler implements Runnable {
     public void sendMessage(String message) {
         out.println(message);
     }
-
     public String getClientName() {
         return clientName;
     }
-
     public String getCurrentRoom() {
         return currentRoom;
     }
+    public void setCurrentRoom(String room) { this.currentRoom = room; }
 }
