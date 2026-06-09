@@ -10,15 +10,15 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class LoginController {
-    @FXML TextField usernameField;
+    @FXML private TextField serverIpField;
+    @FXML private TextField usernameField;
 
     @FXML
     public void onJoinPressed() {
         String username = usernameField.getText().trim();
+        String ipAddress = serverIpField.getText().trim();
 
-        if (username.isEmpty() || username.contains(",")) {
-            usernameField.setStyle("-fx-border-color: #EF4444; -fx-background-color: #1E293B; -fx-text-fill: #FFFFFF;");
-            usernameField.setPromptText("Invalid username!");
+        if (username.isEmpty() || ipAddress.isEmpty()) {
             return;
         }
 
@@ -27,7 +27,7 @@ public class LoginController {
             Parent root = loader.load();
 
             ChatController chatController = loader.getController();
-            chatController.initChat(username);
+            chatController.initChat(username, ipAddress);
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root, 1000, 600));
