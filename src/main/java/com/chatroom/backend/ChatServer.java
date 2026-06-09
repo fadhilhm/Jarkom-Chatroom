@@ -15,8 +15,10 @@ public class ChatServer {
     public static void main(String[] args) {
         System.out.println("Connecting to Server...");
 
+        createRoom("General");
+
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Connected to Server!");
+            System.out.println("Connected to Server! Listening on Port: " + PORT);
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("New user connected: " + socket.getRemoteSocketAddress());
@@ -32,14 +34,12 @@ public class ChatServer {
     }
 
     // broadcast message to other user after a message is sent
-    public static void broadcastToRoom(String roomName, String message, ClientHandler excludeUser) {
+    public static void broadcastToRoom(String roomName, String message) {
         Set<ClientHandler> roomClients = chatRooms.get(roomName);
         if (roomClients != null) {
             synchronized (roomClients) {
                 for (ClientHandler client : roomClients) {
-                    if (client != excludeUser) {
-                        client.sendMessage(message);
-                    }
+                    client.sendMessage(message);
                 }
             }
         }
@@ -120,7 +120,6 @@ class ClientHandler implements Runnable {
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            out.println("SUBMIT_NAME_PROMPT");
             this.clientName = in.readLine();
             System.out.println("User registered as: " + clientName);
 
@@ -138,9 +137,21 @@ class ClientHandler implements Runnable {
                     ChatServer.broadcastRoomList();
                 } else if (inputLine.startsWith("JOIN_ROOM:")) {
                     String roomName = inputLine.substring(10);
+                    String oldRoom = this.currentRoom;
+
                     if (ChatServer.joinRoom(roomName, this)) {
                         this.currentRoom = roomName;
                         out.println("JOIN_SUCCESS:" + roomName);
+
+                        // Alert old room that user left
+                        if (oldRoom != null) {
+                            String leaveAlert = clientName + " has left the room.\n";
+                            ChatServer.broadcastToRoom(oldRoom, leaveAlert);
+                        }
+
+                        // Alert new room that user joined
+                        String joinAlert = clientName + " has joined the room.\n";;
+                        ChatServer.broadcastToRoom(roomName, joinAlert);
 
                         ChatServer.sendRoomHistory(roomName, this);
                     }
@@ -149,20 +160,25 @@ class ClientHandler implements Runnable {
                     if (currentRoom != null) {
                         String message = clientName + ": " + inputLine + "\n";
                         ChatServer.archiveMessage(currentRoom, message);
-                        ChatServer.broadcastToRoom(currentRoom, clientName + ": " + inputLine, this);
+                        ChatServer.broadcastToRoom(currentRoom, clientName + ": " + inputLine);
                     }
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
+            if (currentRoom != null) {
+                String departureAlert = clientName + " has left the chat.\n";
+                ChatServer.broadcastToRoom(currentRoom, departureAlert);
+            }
+
             ChatServer.removeGlobalClient(this);
             try { clientSocket.close(); } catch (IOException ignore) {}
         }
     }
 
     public void sendMessage(String message) {
-        out.println(message);
+        out.println(message+"\n");
     }
 
     public String getClientName() {

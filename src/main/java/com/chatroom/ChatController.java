@@ -21,14 +21,15 @@ public class ChatController {
     @FXML private Label currentRoomLabel;
 
     private static final int PORT = ChatServer.PORT;
-    private static final String ADDRESS = ChatServer.ADDRESS;
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
     private String username;
+    private String ipAddress;
 
-    public void initChat(String username) {
+    public void initChat(String username, String ipAddress) {
         this.username = username;
+        this.ipAddress = ipAddress;
 
         // listen for when user clicks a room name in the sidebar
         roomListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -92,25 +93,38 @@ public class ChatController {
     public void connectToServer() {
         new Thread(() -> {
             try {
-                socket = new Socket(ADDRESS, PORT);
+                socket = new Socket(ipAddress, PORT);
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                // handle handshake
-                String serverPrompt = in.readLine();
                 out.println(username);
 
-                String serverMessage;
-                while ((serverMessage = in.readLine()) != null) {
-                    final String msg = serverMessage;
-                    Platform.runLater(() -> handleIncomingProtocol(msg));
-                }
+                // handle handshake
+                Thread networkListener = getThread();
+                networkListener.start();
             } catch (IOException e) {
                 chatArea.appendText("Could not connect to ChatServer.\n");
                 chatArea.appendText("Please ensure ChatServer is running and restart the app.\n");
                 inputField.setDisable(true);
             }
         }).start();
+    }
+
+    private Thread getThread() {
+        Thread networkListener = new Thread(() -> {
+            try {
+                String incomingMessage;
+                while ((incomingMessage = in.readLine()) != null) {
+                    final String msg = incomingMessage;
+
+                    Platform.runLater(() -> handleIncomingProtocol(msg));
+                }
+            } catch (IOException e) {
+                Platform.runLater(() -> chatArea.appendText("Connection to server lost\n"));
+            }
+        });
+        networkListener.setDaemon(true);
+        return networkListener;
     }
 
     private void handleIncomingProtocol(String message) {
@@ -151,7 +165,6 @@ public class ChatController {
         String text = inputField.getText().trim();
         if (!text.isEmpty() && out != null) {
             out.println(text);
-            chatArea.appendText(username + ": " + text + "\n\n");
             inputField.clear();
         }
     }
