@@ -146,6 +146,7 @@ class ClientHandler implements Runnable {
                         // Alert old room that user left
                         if (oldRoom != null) {
                             String leaveAlert = clientName + " has left the room.";
+                            ChatServer.archiveMessage(oldRoom, leaveAlert);
                             ChatServer.broadcastToRoom(oldRoom, leaveAlert);
                         }
 
@@ -153,6 +154,7 @@ class ClientHandler implements Runnable {
 
                         // Alert new room that user joined
                         String joinAlert = clientName + " has joined the room.";
+                        ChatServer.archiveMessage(roomName, joinAlert);
                         ChatServer.broadcastToRoom(roomName, joinAlert);
                     }
                 }
