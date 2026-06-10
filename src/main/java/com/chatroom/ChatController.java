@@ -136,12 +136,10 @@ public class ChatController {
 
             String rawRooms = message.substring(10);
             if (!rawRooms.trim().isEmpty()) {
-                // update chatroom sidebar
                 String[] rooms = rawRooms.split(",");
                 roomListView.getItems().addAll(rooms);
             }
         } else if (message.startsWith("JOIN_SUCCESS:")) {
-            // successfully swapped room
             String roomName = message.substring(13);
             currentRoomLabel.setText("Currently in Room: @" + roomName);
             chatArea.clear();
@@ -155,13 +153,10 @@ public class ChatController {
                 userListView.getItems().addAll(users);
             }
         } else if (message.equals("EJECTED")) {
-            // You are kicked
             chatArea.clear();
             userListView.getItems().clear();
-            currentRoomLabel.setText("[System Alert: Ejected. Rejoining lobby...]");
             chatArea.appendText("You were kicked or the room was deleted by its owner.\n");
 
-            // Auto fallback to General safety room safely
             if (out != null) {
                 out.println("JOIN_ROOM:General");
             }
@@ -193,7 +188,6 @@ public class ChatController {
 
     @FXML
     public void onCloseRoomAction() {
-        // Splits off the plain room name string from the current label context
         String cleanLabel = currentRoomLabel.getText().replace("Currently in Room: @", "").trim();
         if (out != null && !cleanLabel.isEmpty()) {
             out.println("CLOSE_ROOM:" + cleanLabel);
@@ -204,7 +198,6 @@ public class ChatController {
     public void onKickUserAction() {
         String selectedUser = userListView.getSelectionModel().getSelectedItem();
         if (out != null && selectedUser != null) {
-            // Ensures you don't send a payload to kick yourself
             if (!selectedUser.equalsIgnoreCase(this.username)) {
                 out.println("KICK:" + selectedUser);
             }

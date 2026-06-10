@@ -113,9 +113,9 @@ public class ChatServer {
             if (targetHandler != null) {
                 roomClients.remove(targetHandler);
                 targetHandler.setCurrentRoom(null);
-                targetHandler.sendMessage("EJECTED"); // Alert client to drop UI states
+                targetHandler.sendMessage("EJECTED");
 
-                broadcastToRoom(roomName, "[SYSTEM] " + targetUsername + " was kicked from the room.");
+                broadcastToRoom(roomName, targetUsername + " was kicked from the room.");
                 broadcastUserList(roomName);
             }
         }
@@ -186,6 +186,16 @@ class ClientHandler implements Runnable {
             this.clientName = in.readLine();
             System.out.println("User registered as: " + clientName);
 
+            if (ChatServer.joinRoom("General", this)) {
+                this.currentRoom = "General";
+                String joinAlert = clientName + " has joined the room.";
+
+                ChatServer.sendRoomHistory("General", this);
+                ChatServer.archiveMessage("General", joinAlert);
+                ChatServer.broadcastToRoom("General", joinAlert);
+                ChatServer.broadcastUserList("General");
+            }
+
             ChatServer.broadcastRoomList();
 
             String inputLine;
@@ -207,19 +217,18 @@ class ClientHandler implements Runnable {
                         this.currentRoom = roomName;
                         out.println("JOIN_SUCCESS:" + roomName);
 
-                        // Alert old room that user left
                         if (oldRoom != null) {
                             String leaveAlert = clientName + " has left the room.";
                             ChatServer.archiveMessage(oldRoom, leaveAlert);
                             ChatServer.broadcastToRoom(oldRoom, leaveAlert);
+                            ChatServer.broadcastUserList(oldRoom);
                         }
 
                         ChatServer.sendRoomHistory(roomName, this);
-
-                        // Alert new room that user joined
                         String joinAlert = clientName + " has joined the room.";
                         ChatServer.archiveMessage(roomName, joinAlert);
                         ChatServer.broadcastToRoom(roomName, joinAlert);
+                        ChatServer.broadcastUserList(roomName);
                     }
                 } else if (inputLine.startsWith("KICK:")) {
                     if (currentRoom != null && this == ChatServer.getRoomOwner(currentRoom)) {
@@ -243,8 +252,9 @@ class ClientHandler implements Runnable {
             throw new RuntimeException(e);
         } finally {
             if (currentRoom != null) {
-                String departureAlert = clientName + " has left the chat.";
+                String departureAlert = clientName + " has left the server.";
                 ChatServer.broadcastToRoom(currentRoom, departureAlert);
+                ChatServer.broadcastUserList(currentRoom);
             }
 
             ChatServer.removeGlobalClient(this);
